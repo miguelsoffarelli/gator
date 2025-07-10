@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"log"
+	"os"
 
 	config "github.com/miguelsoffarelli/go-blog-aggregator/internal/config"
 )
@@ -10,20 +10,32 @@ import (
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
-		fmt.Printf("Error reading config file: %v", err)
+		log.Fatalf("Error reading config file: %v", err)
 	}
 
-	cfg.SetUser("miguel")
+	s := state{}
+	s.cfg = &cfg
 
-	cfg, err = config.Read()
-	if err != nil {
-		fmt.Printf("Error reading config file: %v", err)
+	c := commands{
+		cmds: make(map[string]func(*state, command) error),
 	}
 
-	data, err := json.MarshalIndent(cfg, "", "  ")
-	if err != nil {
-		fmt.Printf("Error marshaling json: %v", err)
+	c.register("login", handlerLogin)
+
+	args := os.Args[1:]
+	if len(args) < 1 {
+		log.Fatalf("Error: not enough arguments")
 	}
 
-	fmt.Println(string(data))
+	cmdName := args[0]
+	cmdArgs := args[1:]
+
+	cmd := command{
+		name: cmdName,
+		args: cmdArgs,
+	}
+
+	if err := c.run(&s, cmd); err != nil {
+		log.Fatalf("%v", err)
+	}
 }
