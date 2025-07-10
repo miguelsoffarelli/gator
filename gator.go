@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/miguelsoffarelli/go-blog-aggregator/internal/config"
+	config "github.com/miguelsoffarelli/go-blog-aggregator/internal/config"
+	database "github.com/miguelsoffarelli/go-blog-aggregator/internal/database"
 )
 
 type state struct {
+	db  *database.Queries
 	cfg *config.Config
 }
 

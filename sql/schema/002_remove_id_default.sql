@@ -1,0 +1,2 @@
+-- +goose Up
+ALTER TABLE users ALTER COLUMN id DROP DEFAULT;

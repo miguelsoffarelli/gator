@@ -1,1 +1,4 @@
 go-blog-aggregator
+*.exe
+*.test
+.vscode/
