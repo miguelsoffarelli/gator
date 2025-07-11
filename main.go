@@ -7,6 +7,7 @@ import (
 
 	_ "github.com/lib/pq"
 
+	"github.com/miguelsoffarelli/go-blog-aggregator/internal/commands"
 	config "github.com/miguelsoffarelli/go-blog-aggregator/internal/config"
 	database "github.com/miguelsoffarelli/go-blog-aggregator/internal/database"
 )
@@ -24,19 +25,19 @@ func main() {
 
 	dbQueries := database.New(db)
 
-	s := state{}
-	s.cfg, s.db = &cfg, dbQueries
+	s := commands.State{}
+	s.Cfg, s.Db = &cfg, dbQueries
 
-	c := commands{
-		cmds: make(map[string]func(*state, command) error),
+	c := commands.Commands{
+		Cmds: make(map[string]func(*commands.State, commands.Command) error),
 	}
 
-	c.register("login", handlerLogin)
-	c.register("register", handlerRegister)
-	c.register("reset", handlerReset)
-	c.register("users", handlerUsers)
-	c.register("agg", handlerAgg)
-	c.register("addfeed", handlerAddFeed)
+	c.Register("login", commands.HandlerLogin)
+	c.Register("register", commands.HandlerRegister)
+	c.Register("reset", commands.HandlerReset)
+	c.Register("users", commands.HandlerUsers)
+	c.Register("agg", commands.HandlerAgg)
+	c.Register("addfeed", commands.HandlerAddFeed)
 
 	args := os.Args[1:]
 	if len(args) < 1 {
@@ -46,12 +47,12 @@ func main() {
 	cmdName := args[0]
 	cmdArgs := args[1:]
 
-	cmd := command{
-		name: cmdName,
-		args: cmdArgs,
+	cmd := commands.Command{
+		Name: cmdName,
+		Args: cmdArgs,
 	}
 
-	if err := c.run(&s, cmd); err != nil {
+	if err := c.Run(&s, cmd); err != nil {
 		log.Fatalf("%v", err)
 		os.Exit(1)
 	}

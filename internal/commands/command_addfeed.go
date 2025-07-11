@@ -1,4 +1,4 @@
-package main
+package commands
 
 import (
 	"context"
@@ -9,16 +9,16 @@ import (
 	"github.com/miguelsoffarelli/go-blog-aggregator/internal/database"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
-	if len(cmd.args) != 2 {
+func HandlerAddFeed(s *State, cmd Command) error {
+	if len(cmd.Args) != 2 {
 		return fmt.Errorf("must provide feed name and url")
 	}
 
-	feedName, feedURL := cmd.args[0], cmd.args[1]
+	feedName, feedURL := cmd.Args[0], cmd.Args[1]
 
 	ctx := context.Background()
 
-	user, err := s.db.GetUser(ctx, s.cfg.Current_user_name)
+	user, err := s.Db.GetUser(ctx, s.Cfg.Current_user_name)
 	if err != nil {
 		return fmt.Errorf("error getting current user: %v", err)
 	}
@@ -32,7 +32,7 @@ func handlerAddFeed(s *state, cmd command) error {
 		UserID:    user.ID,
 	}
 
-	feed, err := s.db.CreateFeed(ctx, params)
+	feed, err := s.Db.CreateFeed(ctx, params)
 	if err != nil {
 		return fmt.Errorf("error adding feed to database: %v", err)
 	}

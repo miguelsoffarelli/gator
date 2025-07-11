@@ -1,4 +1,4 @@
-package main
+package commands
 
 import (
 	"context"
@@ -11,15 +11,15 @@ import (
 	"github.com/miguelsoffarelli/go-blog-aggregator/internal/database"
 )
 
-func handlerRegister(s *state, cmd command) error {
-	if len(cmd.args) != 1 {
+func HandlerRegister(s *State, cmd Command) error {
+	if len(cmd.Args) != 1 {
 		return fmt.Errorf("error: username required")
 	}
 
-	name := cmd.args[0]
+	name := cmd.Args[0]
 	ctx := context.Background()
 
-	_, err := s.db.GetUser(ctx, name)
+	_, err := s.Db.GetUser(ctx, name)
 	if err == nil {
 		return fmt.Errorf("error: user already exists")
 	}
@@ -34,12 +34,12 @@ func handlerRegister(s *state, cmd command) error {
 		Name:      name,
 	}
 
-	user, err := s.db.CreateUser(ctx, params)
+	user, err := s.Db.CreateUser(ctx, params)
 	if err != nil {
 		return fmt.Errorf("error creating user %v: %v", name, err)
 	}
 
-	s.cfg.SetUser(user.Name)
+	s.Cfg.SetUser(user.Name)
 
 	fmt.Printf("User %v successfully created!\n", user.Name)
 	log.Printf("ID: %v\n", user.ID)

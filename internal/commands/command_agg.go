@@ -1,4 +1,4 @@
-package main
+package commands
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/miguelsoffarelli/go-blog-aggregator/internal/rss"
 )
 
-func handlerAgg(s *state, cmd command) error {
+func HandlerAgg(s *State, cmd Command) error {
 	ctx := context.Background()
 	URL := "https://www.wagslane.dev/index.xml"
 
