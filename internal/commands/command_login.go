@@ -13,7 +13,7 @@ func HandlerLogin(s *State, cmd Command) error {
 
 	name := cmd.Args[0]
 
-	if _, err := s.Db.GetUser(context.Background(), name); err == sql.ErrNoRows {
+	if _, err := s.Db.GetUserByName(context.Background(), name); err == sql.ErrNoRows {
 		return fmt.Errorf("error: user doesn't exist")
 	} else if err != nil {
 		return fmt.Errorf("database error: %v", err)

@@ -7,15 +7,34 @@ package database
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
-const getUser = `-- name: GetUser :one
+const getUserById = `-- name: GetUserById :one
+SELECT id, created_at, updated_at, name FROM users
+WHERE id = $1
+`
+
+func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserById, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+	)
+	return i, err
+}
+
+const getUserByName = `-- name: GetUserByName :one
 SELECT id, created_at, updated_at, name FROM users
 WHERE name = $1
 `
 
-func (q *Queries) GetUser(ctx context.Context, name string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, name)
+func (q *Queries) GetUserByName(ctx context.Context, name string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByName, name)
 	var i User
 	err := row.Scan(
 		&i.ID,

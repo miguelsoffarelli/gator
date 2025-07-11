@@ -18,7 +18,7 @@ func HandlerAddFeed(s *State, cmd Command) error {
 
 	ctx := context.Background()
 
-	user, err := s.Db.GetUser(ctx, s.Cfg.Current_user_name)
+	user, err := s.Db.GetUserByName(ctx, s.Cfg.Current_user_name)
 	if err != nil {
 		return fmt.Errorf("error getting current user: %v", err)
 	}

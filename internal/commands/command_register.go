@@ -19,7 +19,7 @@ func HandlerRegister(s *State, cmd Command) error {
 	name := cmd.Args[0]
 	ctx := context.Background()
 
-	_, err := s.Db.GetUser(ctx, name)
+	_, err := s.Db.GetUserByName(ctx, name)
 	if err == nil {
 		return fmt.Errorf("error: user already exists")
 	}

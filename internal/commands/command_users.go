@@ -6,7 +6,13 @@ import (
 )
 
 func HandlerUsers(s *State, cmd Command) error {
-	users, err := s.Db.ListUsers(context.Background())
+	if len(cmd.Args) != 0 {
+		fmt.Println("Parameters ignored: command users takes no parameters")
+	}
+
+	ctx := context.Background()
+
+	users, err := s.Db.ListUsers(ctx)
 	if err != nil {
 		return fmt.Errorf("error getting users from database: %v", err)
 	}
