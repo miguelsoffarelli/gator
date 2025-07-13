@@ -23,7 +23,7 @@ func HandlerAddFeed(s *State, cmd Command) error {
 		return fmt.Errorf("error getting current user: %v", err)
 	}
 
-	params := database.CreateFeedParams{
+	createFeedParams := database.CreateFeedParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -32,9 +32,21 @@ func HandlerAddFeed(s *State, cmd Command) error {
 		UserID:    user.ID,
 	}
 
-	feed, err := s.Db.CreateFeed(ctx, params)
+	feed, err := s.Db.CreateFeed(ctx, createFeedParams)
 	if err != nil {
 		return fmt.Errorf("error adding feed to database: %v", err)
+	}
+
+	createFeedFollowParams := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	}
+
+	if _, err = s.Db.CreateFeedFollow(ctx, createFeedFollowParams); err != nil {
+		return fmt.Errorf("error following created feed: %v", err)
 	}
 
 	fmt.Printf("ID: %v\n", feed.ID)
