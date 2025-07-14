@@ -9,18 +9,13 @@ import (
 	"github.com/miguelsoffarelli/go-blog-aggregator/internal/database"
 )
 
-func HandlerFollow(s *State, cmd Command) error {
+func HandlerFollow(s *State, cmd Command, user database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("must provide url")
 	}
 
 	ctx := context.Background()
 	url := cmd.Args[0]
-
-	user, err := s.Db.GetUserByName(ctx, s.Cfg.Current_user_name)
-	if err != nil {
-		return fmt.Errorf("error getting current user from the database: %v", err)
-	}
 
 	feed, err := s.Db.GetFeedByUrl(ctx, url)
 	if err != nil {
@@ -45,6 +40,26 @@ func HandlerFollow(s *State, cmd Command) error {
 	fmt.Printf("Feed Name: %v\n", followedFeed.FeedName)
 	fmt.Printf("Current User: %v\n", followedFeed.UserName)
 	fmt.Println("=============================================")
+
+	return nil
+}
+
+func HandlerFollowing(s *State, cmd Command, user database.User) error {
+	if len(cmd.Args) != 0 {
+		fmt.Println("Parameters ignored: command following takes no parameters")
+	}
+
+	ctx := context.Background()
+
+	feedFollows, err := s.Db.GetFeedFollowsForUser(ctx, user.ID)
+	if err != nil {
+		return fmt.Errorf("error getting feeds from database: %v", err)
+	}
+
+	for _, feed := range feedFollows {
+		fmt.Println(feed.FeedName)
+	}
+	fmt.Println("=====================================================")
 
 	return nil
 }
