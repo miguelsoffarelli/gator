@@ -63,3 +63,22 @@ func HandlerFollowing(s *State, cmd Command, user database.User) error {
 
 	return nil
 }
+
+func HandlerUnfollow(s *State, cmd Command, user database.User) error {
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("must provide url from feed to unfollow")
+	}
+
+	url := cmd.Args[0]
+	ctx := context.Background()
+	params := database.UnfollowParams{
+		UserID: user.ID,
+		Url:    url,
+	}
+
+	if err := s.Db.Unfollow(ctx, params); err != nil {
+		return fmt.Errorf("error unfollowing feed: %v", err)
+	}
+
+	return nil
+}
