@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/miguelsoffarelli/go-blog-aggregator/internal/database"
 	"github.com/miguelsoffarelli/go-blog-aggregator/internal/rss"
 )
@@ -129,7 +131,122 @@ func scrapeFeeds(s *State) error {
 	}
 
 	for _, item := range feed.Channel.Item {
-		fmt.Println(item.Title)
+		publishedAt, err := parseTime(item.PubDate)
+		if err != nil {
+			publishedAt = nil
+		}
+
+		params := database.CreatePostParams{
+			ID:        uuid.New(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			Title: sql.NullString{
+				String: item.Title,
+				Valid:  true,
+			},
+			Url: item.Link,
+			Description: sql.NullString{
+				String: item.Description,
+				Valid:  true,
+			},
+			PublishedAt: sql.NullTime{
+				Time:  *publishedAt,
+				Valid: true,
+			},
+			FeedID: nextFeed.ID,
+		}
+
+		if _, err := s.Db.CreatePost(ctx, params); err != nil && !isUniqueConstraintError(err) {
+			fmt.Printf("error adding post %s to database: %v", item.Title, err)
+		}
+	}
+
+	return nil
+}
+
+func parseTime(timeStr string) (*time.Time, error) {
+	// To avoid trying unnecessary formats that are less common on RSS's,
+	// first iterate over the most common formats.
+	commonFormats := []string{
+		time.RFC1123,     // "Mon, 02 Jan 2006 15:04:05 MST"
+		time.RFC1123Z,    // "Mon, 02 Jan 2006 15:04:05 -0700"
+		time.RFC3339,     // "2006-01-02T15:04:05Z07:00"
+		time.RFC3339Nano, // "2006-01-02T15:04:05.999999999Z07:00"
+	}
+
+	for _, format := range commonFormats {
+		// if error is nil it means the parsing was successful
+		if t, err := time.Parse(format, timeStr); err == nil {
+			return &t, nil
+		}
+	}
+
+	// ONLY if that fails, try every format provided in go's time package documentation
+	allFormats := []string{
+		time.Layout,
+		time.ANSIC,
+		time.UnixDate,
+		time.RubyDate,
+		time.RFC822,
+		time.RFC822Z,
+		time.RFC850,
+		time.RFC1123,
+		time.RFC1123Z,
+		time.RFC3339,
+		time.RFC3339Nano,
+		time.Kitchen,
+		time.Stamp,
+		time.StampMilli,
+		time.StampMicro,
+		time.StampNano,
+		time.DateTime,
+		time.DateOnly,
+		time.TimeOnly,
+	}
+
+	for _, format := range allFormats {
+		if t, err := time.Parse(format, timeStr); err == nil {
+			return &t, nil
+		}
+	}
+
+	return nil, fmt.Errorf("error: couldn't parse time of publication")
+}
+
+// Check for SQL State 23505 for duplicate url's
+func isUniqueConstraintError(err error) bool {
+	if pqErr, ok := err.(*pq.Error); ok {
+		return pqErr.Code == "23505"
+	}
+	return false
+}
+
+func HandlerBrowse(s *State, cmd Command, user database.User) error {
+	limit := int32(2) // default value
+	if len(cmd.Args) >= 1 {
+		if intLimit, err := strconv.Atoi(cmd.Args[0]); err == nil {
+			limit = int32(intLimit)
+		}
+	}
+
+	ctx := context.Background()
+	params := database.GetPostsForUserParams{
+		UserID: user.ID,
+		Limit:  limit,
+	}
+
+	posts, err := s.Db.GetPostsForUser(ctx, params)
+	if err != nil {
+		return fmt.Errorf("error getting posts for current user: %v", err)
+	}
+
+	for _, post := range posts {
+		fmt.Printf("Title: %v\n", post.Title.String)
+		fmt.Printf("URL: %v\n", post.Url)
+		fmt.Printf("Published At: %v\n", post.PublishedAt.Time.Format(time.DateTime))
+		fmt.Printf("Description: %v\n", post.Description.String)
+		fmt.Println("================================================================")
+		fmt.Println("")
 	}
 
 	return nil
