@@ -6,6 +6,7 @@ CLI tool that allows users to:
 * Store the collected posts in a PostgreSQL database
 * Follow and unfollow RSS feeds that other users have added
 * View summaries of the aggregated posts in the terminal, with a link to the full post
+
 Built with educational purposes to practice client-side HTTP requests in GO and PostgreSQL database implementation.
 
 ## Dependencies
