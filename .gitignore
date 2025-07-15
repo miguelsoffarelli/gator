@@ -1,4 +1,4 @@
-go-blog-aggregator
+gator
 *.exe
 *.test
 .vscode/
