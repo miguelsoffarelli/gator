@@ -3,8 +3,8 @@ package commands
 import (
 	"fmt"
 
-	config "github.com/miguelsoffarelli/go-blog-aggregator/internal/config"
-	database "github.com/miguelsoffarelli/go-blog-aggregator/internal/database"
+	config "github.com/miguelsoffarelli/gator/internal/config"
+	database "github.com/miguelsoffarelli/gator/internal/database"
 )
 
 type State struct {

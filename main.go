@@ -7,9 +7,9 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/miguelsoffarelli/go-blog-aggregator/internal/commands"
-	config "github.com/miguelsoffarelli/go-blog-aggregator/internal/config"
-	database "github.com/miguelsoffarelli/go-blog-aggregator/internal/database"
+	commands "github.com/miguelsoffarelli/gator/internal/commands"
+	config "github.com/miguelsoffarelli/gator/internal/config"
+	database "github.com/miguelsoffarelli/gator/internal/database"
 )
 
 func main() {

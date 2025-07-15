@@ -9,8 +9,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/miguelsoffarelli/go-blog-aggregator/internal/database"
-	"github.com/miguelsoffarelli/go-blog-aggregator/internal/rss"
+	"github.com/miguelsoffarelli/gator/internal/database"
+	"github.com/miguelsoffarelli/gator/internal/rss"
 )
 
 func HandlerFeeds(s *State, cmd Command) error {
@@ -22,6 +22,10 @@ func HandlerFeeds(s *State, cmd Command) error {
 	feeds, err := s.Db.ListFeeds(ctx)
 	if err != nil {
 		return fmt.Errorf("error getting feeds from database: %v", err)
+	}
+
+	if len(feeds) == 0 {
+		fmt.Println("No feeds found in database. Use command addfeed <feed name> <url> to add a new feed.")
 	}
 
 	for _, feed := range feeds {

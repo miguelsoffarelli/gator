@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/miguelsoffarelli/go-blog-aggregator/internal/database"
+	"github.com/miguelsoffarelli/gator/internal/database"
 )
 
 func HandlerUsers(s *State, cmd Command) error {
@@ -21,6 +21,10 @@ func HandlerUsers(s *State, cmd Command) error {
 	users, err := s.Db.ListUsers(ctx)
 	if err != nil {
 		return fmt.Errorf("error getting users from database: %v", err)
+	}
+
+	if len(users) == 0 {
+		fmt.Println("No users found. Use command register to sign up.")
 	}
 
 	for _, user := range users {

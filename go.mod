@@ -1,4 +1,4 @@
-module github.com/miguelsoffarelli/go-blog-aggregator
+module github.com/miguelsoffarelli/gator
 
 go 1.24.2
 
